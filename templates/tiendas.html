@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Seleccionar Tienda{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tiendas-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .tienda-card {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .tienda-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .tienda-card h3 {
+        color: #4CAF50;
+        margin-bottom: 10px;
+        font-size: 20px;
+    }
+    .tienda-info {
+        color: #666;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Seleccionar Tienda</h1>
+<p>Elige una tienda para ver sus entregas:</p>
+
+<div class="tiendas-container">
+    {% for tienda in tiendas %}
+    <a href="/tienda/{{ tienda | replace(' ', '_') }}" class="tienda-card">
+        <h3>{{ tienda }}</h3>
+        <p class="tienda-info">Ver entregas de esta tienda</p>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

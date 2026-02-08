@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Entregas - {{ tienda }}{% endblock %}
+
+{% block content %}
+<h1>Entregas - {{ tienda }}</h1>
+
+<h2>Detalle de Entregas</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Teléfono</th>
+        <th>Número Guía</th>
+        <th>Encargado</th>
+        <th>Total</th>
+        <th>Agregar a Factura</th>
+    </tr>
+    {% for row in entregas %}
+    <tr>
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>{{ row[2] }}</td>
+        <td>{{ row[3] }}</td>
+        <td>{{ row[5] }}</td>
+        <td>${{ "%.2f"|format(row[6]) }}</td>
+        <td>
+            <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
+                <input type="number" name="monto" step="0.01" min="0" placeholder="Monto" required>
+                <button type="submit">Agregar</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h2>Resumen de Ventas por Vendedor</h2>
+<table>
+    <tr>
+        <th>Vendedor</th>
+        <th>Cantidad de Entregas</th>
+        <th>Total Vendido</th>
+    </tr>
+    {% for row in vendedores %}
+    <tr class="total-row">
+        <td>{{ row[0] }}</td>
+        <td>{{ row[1] }}</td>
+        <td>${{ "%.2f"|format(row[2]) }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div style="margin-top: 20px;">
+    <a href="/tiendas" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">← Volver a Tiendas</a>
+</div>
+{% endblock %}

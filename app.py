@@ -7,7 +7,9 @@ from ConsultasSQL.VentasVendedores import (
     agregar_a_factura,
     obtener_tiendas,
     obtener_entregas_por_tienda,
-    obtener_ventas_por_vendedor_tienda
+    obtener_ventas_por_vendedor_tienda,
+    marcar_como_entregado,
+    obtener_entregas_por_fecha
 )
 
 app = Flask(__name__)
@@ -45,6 +47,28 @@ def agregar_monto_factura(id_entrega):
     if referrer:
         return redirect(referrer)
     return redirect(url_for('index'))
+
+@app.route('/marcar_entregado/<int:id_entrega>', methods=['POST'])
+def marcar_entregado(id_entrega):
+    marcar_como_entregado(id_entrega)
+    referrer = request.referrer
+    
+    if referrer:
+        return redirect(referrer)
+    return redirect(url_for('index'))
+
+@app.route('/entregas_por_fecha', methods=['GET', 'POST'])
+def entregas_por_fecha():
+    entregas = []
+    fecha_filtro = None
+    
+    if request.method == 'POST':
+        fecha = request.form.get('fecha')
+        if fecha:
+            fecha_filtro = fecha
+            entregas = obtener_entregas_por_fecha(fecha)
+    
+    return render_template('entregas_fecha.html', entregas=entregas, fecha=fecha_filtro)
 
 if __name__ == '__main__':
     app.run(debug=True)

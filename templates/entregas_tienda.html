@@ -6,48 +6,88 @@
 <h1>Entregas - {{ tienda }}</h1>
 
 <h2>Detalle de Entregas</h2>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Cliente</th>
-        <th>Teléfono</th>
-        <th>Número Guía</th>
-        <th>Encargado</th>
-        <th>Total</th>
-        <th>Agregar a Factura</th>
-    </tr>
-    {% for row in entregas %}
-    <tr>
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>{{ row[2] }}</td>
-        <td>{{ row[3] }}</td>
-        <td>{{ row[5] }}</td>
-        <td>${{ "%.2f"|format(row[6]) }}</td>
-        <td>
-            <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
-                <input type="number" name="monto" step="0.01" min="0" placeholder="Monto" required>
-                <button type="submit">Agregar</button>
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
+<div class="filtro-container">
+    <label for="filtroEntregasTienda">🔍 Buscar:</label>
+    <input type="text" id="filtroEntregasTienda" placeholder="Buscar por cliente, teléfono, número guía, encargado..." onkeyup="filtrarTabla('tablaEntregasTienda', 'filtroEntregasTienda')">
+</div>
+<table id="tablaEntregasTienda">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Número Guía</th>
+            <th>Encargado</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Entregado</th>
+            <th>Agregar a Factura</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in entregas %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[5] }}</td>
+            <td>{{ row[7] }}</td>
+            <td>${{ "%.2f"|format(row[6]) }}</td>
+            <td>
+                {% if row[8] == 1 %}
+                    <span style="color: green; font-weight: bold;">✓ Sí</span>
+                {% else %}
+                    <span style="color: red;">✗ No</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if row[8] == 0 %}
+                <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
+                    <input type="number" name="monto" step="0.01" min="0" placeholder="Monto" required>
+                    <button type="submit">Agregar</button>
+                </form>
+                {% else %}
+                <span style="color: gray; font-style: italic;">No disponible</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if row[8] == 0 %}
+                <form action="/marcar_entregado/{{ row[0] }}" method="POST" style="display: inline;">
+                    <button type="submit" style="background-color: #28a745; padding: 5px 10px; color: white; border: none; border-radius: 4px; cursor: pointer;">Marcar Entregado</button>
+                </form>
+                {% else %}
+                <span style="color: gray;">Entregado</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <h2>Resumen de Ventas por Vendedor</h2>
-<table>
-    <tr>
-        <th>Vendedor</th>
-        <th>Cantidad de Entregas</th>
-        <th>Total Vendido</th>
-    </tr>
-    {% for row in vendedores %}
-    <tr class="total-row">
-        <td>{{ row[0] }}</td>
-        <td>{{ row[1] }}</td>
-        <td>${{ "%.2f"|format(row[2]) }}</td>
-    </tr>
-    {% endfor %}
+<div class="filtro-container">
+    <label for="filtroVendedoresTienda">🔍 Buscar:</label>
+    <input type="text" id="filtroVendedoresTienda" placeholder="Buscar por nombre del vendedor..." onkeyup="filtrarTabla('tablaVendedoresTienda', 'filtroVendedoresTienda')">
+</div>
+<table id="tablaVendedoresTienda">
+    <thead>
+        <tr>
+            <th>Vendedor</th>
+            <th>Cantidad de Entregas</th>
+            <th>Total Vendido</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in vendedores %}
+        <tr class="total-row">
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>${{ "%.2f"|format(row[2]) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 
 <div style="margin-top: 20px;">

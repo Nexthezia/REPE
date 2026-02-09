@@ -5,7 +5,9 @@ CREATE TABLE entregas (
     numero_guia VARCHAR(50),
     ubicacion VARCHAR(100) DEFAULT 'TIENDA SOYAPANGO',
     encargado VARCHAR(100),
-    total DECIMAL(10, 2)
+    total DECIMAL(10, 2),
+    fecha_entrega DATE DEFAULT CURDATE(),
+    entregado BOOLEAN DEFAULT 0
 );
 
 INSERT INTO entregas (id, cliente, telefono, numero_guia, encargado, total) VALUES

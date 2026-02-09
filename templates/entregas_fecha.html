@@ -1,16 +1,29 @@
 {% extends "base.html" %}
 
-{% block title %}Entregas - Vista General{% endblock %}
+{% block title %}Entregas por Fecha{% endblock %}
 
 {% block content %}
-<h1>Todas las Entregas</h1>
+<h1>Entregas por Fecha</h1>
 
-<h2>Detalle de Entregas</h2>
-<div class="filtro-container">
-    <label for="filtroEntregas">🔍 Buscar:</label>
-    <input type="text" id="filtroEntregas" placeholder="Buscar por cliente, teléfono, número guía, encargado..." onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+<div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 400px;">
+    <form method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
+        <div>
+            <label for="fecha" style="display: block; margin-bottom: 5px; font-weight: bold;">Selecciona una fecha:</label>
+            <input type="date" id="fecha" name="fecha" value="{{ fecha }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;" required>
+        </div>
+        <button type="submit" style="background-color: #4CAF50; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Buscar</button>
+    </form>
 </div>
-<table id="tablaEntregas">
+
+{% if fecha %}
+<h2>Entregas del {{ fecha }}</h2>
+
+{% if entregas %}
+<div class="filtro-container">
+    <label for="filtroEntregasFecha">🔍 Buscar:</label>
+    <input type="text" id="filtroEntregasFecha" placeholder="Buscar por cliente, teléfono, número guía, encargado..." onkeyup="filtrarTabla('tablaEntregasFecha', 'filtroEntregasFecha')">
+</div>
+<table id="tablaEntregasFecha">
     <thead>
         <tr>
             <th>ID</th>
@@ -19,7 +32,6 @@
             <th>Número Guía</th>
             <th>Ubicación</th>
             <th>Encargado</th>
-            <th>Fecha</th>
             <th>Total</th>
             <th>Entregado</th>
             <th>Agregar a Factura</th>
@@ -27,7 +39,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for row in ventas_vendedores %}
+        {% for row in entregas %}
         <tr>
             <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
@@ -35,7 +47,6 @@
             <td>{{ row[3] }}</td>
             <td>{{ row[4] }}</td>
             <td>{{ row[5] }}</td>
-            <td>{{ row[7] }}</td>
             <td>${{ "%.2f"|format(row[6]) }}</td>
             <td>
                 {% if row[8] == 1 %}
@@ -67,28 +78,10 @@
         {% endfor %}
     </tbody>
 </table>
-
-<h2>Resumen de Ventas por Vendedor</h2>
-<div class="filtro-container">
-    <label for="filtroVendedores">🔍 Buscar:</label>
-    <input type="text" id="filtroVendedores" placeholder="Buscar por nombre del vendedor..." onkeyup="filtrarTabla('tablaVendedores', 'filtroVendedores')">
+{% else %}
+<div class="sin-resultados" style="text-align: center; padding: 30px; color: #999; font-style: italic;">
+    No hay entregas para esta fecha
 </div>
-<table id="tablaVendedores">
-    <thead>
-        <tr>
-            <th>Vendedor</th>
-            <th>Cantidad de Entregas</th>
-            <th>Total Vendido</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in totales_vendedores %}
-        <tr class="total-row">
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>${{ "%.2f"|format(row[2]) }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% endif %}
+{% endif %}
 {% endblock %}

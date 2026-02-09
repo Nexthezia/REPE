@@ -50,6 +50,28 @@
             margin-bottom: 20px;
             margin-top: 30px;
         }
+        .filtro-container {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filtro-container label {
+            font-weight: bold;
+            color: #333;
+        }
+        .filtro-container input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            font-size: 14px;
+        }
+        .filtro-container input:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
         table {
             background-color: white;
             border-collapse: collapse;
@@ -101,6 +123,12 @@
         .agregar-form button:hover {
             background-color: #0b7dda;
         }
+        .sin-resultados {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-style: italic;
+        }
         footer {
             background-color: #f0f0f0;
             border-top: 1px solid #ddd;
@@ -119,6 +147,7 @@
     <nav>
         <a href="/">Inicio</a>
         <a href="/tiendas">Seleccionar Tienda</a>
+        <a href="/entregas_por_fecha">Buscar por Fecha</a>
     </nav>
     
     <div class="container">
@@ -128,5 +157,39 @@
     <footer>
         <p>&copy; 2026 Sistema de Entregas - Todas las tiendas</p>
     </footer>
+
+    <script>
+        function filtrarTabla(idTabla, idFiltro) {
+            const filtro = document.getElementById(idFiltro).value.toLowerCase();
+            const tabla = document.getElementById(idTabla);
+            const filas = tabla.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let filasVisibles = 0;
+
+            for (let i = 0; i < filas.length; i++) {
+                const fila = filas[i];
+                const texto = fila.textContent.toLowerCase();
+                
+                if (texto.includes(filtro)) {
+                    fila.style.display = '';
+                    filasVisibles++;
+                } else {
+                    fila.style.display = 'none';
+                }
+            }
+
+            // Mostrar mensaje si no hay resultados
+            let mensajeSinResultados = tabla.nextElementSibling;
+            if (mensajeSinResultados && mensajeSinResultados.classList.contains('sin-resultados')) {
+                tabla.parentElement.removeChild(mensajeSinResultados);
+            }
+            
+            if (filasVisibles === 0) {
+                const mensaje = document.createElement('div');
+                mensaje.className = 'sin-resultados';
+                mensaje.textContent = 'No hay resultados que coincidan con la búsqueda';
+                tabla.parentElement.appendChild(mensaje);
+            }
+        }
+    </script>
 </body>
 </html>

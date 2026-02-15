@@ -1,29 +1,47 @@
 {% extends "base.html" %}
 
-{% block title %}Entregas por Fecha{% endblock %}
+{% block title %}Filtro por Vendedor{% endblock %}
 
 {% block content %}
-<h1>Entregas por Fecha</h1>
+<h1>Filtro de Ventas por Vendedor</h1>
 
-<div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 400px;">
-    <form method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
-        <div>
-            <label for="fecha" style="display: block; margin-bottom: 5px; font-weight: bold;">Selecciona una fecha:</label>
-            <input type="date" id="fecha" name="fecha" value="{{ fecha }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px;" required>
-        </div>
-        <button type="submit" style="background-color: #4CAF50; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Buscar</button>
+<div class="filtro-container">
+    <h2>Seleccionar Vendedor</h2>
+    <form method="POST" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+        <select name="vendedor" required style="padding: 8px 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px;">
+            <option value="">-- Selecciona un vendedor --</option>
+            {% for vendedor in vendedores %}
+            <option value="{{ vendedor }}" {% if vendedor == vendedor_filtro %}selected{% endif %}>{{ vendedor }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Filtrar</button>
     </form>
 </div>
 
-{% if fecha %}
-<h2>Entregas del {{ fecha }}</h2>
-
-{% if entregas %}
-<div class="filtro-container">
-    <label for="filtroEntregasFecha">🔍 Buscar:</label>
-    <input type="text" id="filtroEntregasFecha" placeholder="Buscar por cliente, teléfono, número guía, encargado..." onkeyup="filtrarTabla('tablaEntregasFecha', 'filtroEntregasFecha')">
+{% if vendedor_filtro %}
+<div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+    <strong>Vendedor seleccionado:</strong> {{ vendedor_filtro }}
+    <br>
+    <strong>Total de entregas:</strong> {{ ventas|length }}
+    {% set total_ventas = ventas|map(attribute=6)|sum %}
+    <strong style="margin-left: 20px;">Total vendido:</strong> ${{ "%.2f"|format(total_ventas) }}
+    <div style="margin-top: 10px;">
+        <a href="/descargar_excel_vendedor/{{ vendedor_filtro }}" class="btn btn-success" style="display: inline-block; padding: 8px 16px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
+            📥 Descargar Excel de {{ vendedor_filtro }}
+        </a>
+    </div>
 </div>
-<table id="tablaEntregasFecha">
+{% endif %}
+
+{% if vendedor_filtro and ventas|length > 0 %}
+<h2>Entregas de {{ vendedor_filtro }}</h2>
+
+<div class="filtro-container">
+    <label for="filtroEntregas">🔍 Buscar:</label>
+    <input type="text" id="filtroEntregas" placeholder="Buscar por cliente, teléfono, número guía..." onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+</div>
+
+<table id="tablaEntregas">
     <thead>
         <tr>
             <th>ID</th>
@@ -31,7 +49,7 @@
             <th>Teléfono</th>
             <th>Número Guía</th>
             <th>Ubicación</th>
-            <th>Encargado</th>
+            <th>Fecha</th>
             <th>Total</th>
             <th>Entregado</th>
             <th>Agregar a Factura</th>
@@ -39,14 +57,14 @@
         </tr>
     </thead>
     <tbody>
-        {% for row in entregas %}
+        {% for row in ventas %}
         <tr>
             <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
             <td>{{ row[2] }}</td>
             <td>{{ row[3] }}</td>
             <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
+            <td>{{ row[7] }}</td>
             <td>${{ "%.2f"|format(row[6]) }}</td>
             <td>
                 {% if row[8] == 1 %}
@@ -76,12 +94,22 @@
         {% endfor %}
     </tbody>
 </table>
-{% else %}
-<div class="sin-resultados" style="text-align: center; padding: 30px; color: #999; font-style: italic;">
-    No hay entregas para esta fecha
+{% elif vendedor_filtro and ventas|length == 0 %}
+<div style="background-color: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin-top: 20px; border-radius: 4px;">
+    <strong>No hay entregas</strong> para el vendedor {{ vendedor_filtro }}
 </div>
 {% endif %}
-{% endif %}
+
+<!-- Botón para descargar todas las ventas (siempre visible) -->
+<div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
+    <h3>Descargar Reportes</h3>
+    <a href="/descargar_excel_todos" class="btn btn-primary" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+        📊 Descargar Excel - TODAS las Ventas
+    </a>
+    <a href="/descargar_excel_multitienda" class="btn btn-info" style="display: inline-block; padding: 10px 20px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
+        📑 Descargar Excel - Por Tiendas (Separado)
+    </a>
+</div>
 
 <script>
 function marcarEntregado(idEntrega, button) {

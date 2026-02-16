@@ -22,6 +22,12 @@ def index():
     totales_vendedores = obtener_total_por_vendedor()
     return render_template('index.html', ventas_vendedores=ventas, totales_vendedores=totales_vendedores)
 
+@app.route('/vendedores')
+def vendedores():
+    ventas = obtener_ventas_vendedores()
+    totales_vendedores = obtener_total_por_vendedor()
+    return render_template('vendedores.html', ventas_vendedores=ventas, totales_vendedores=totales_vendedores)
+
 @app.route('/tiendas')
 def tiendas():
     lista_tiendas = obtener_tiendas()

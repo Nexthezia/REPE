@@ -2,34 +2,89 @@
 
 {% block title %}Filtro por Vendedor{% endblock %}
 
-{% block content %}
-<h1>Filtro de Ventas por Vendedor</h1>
+{% block extra_css %}
+<style>
+    select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b91b0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 36px !important;
+        cursor: pointer;
+    }
 
-<div class="filtro-container">
-    <h2>Seleccionar Vendedor</h2>
-    <form method="POST" style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-        <select name="vendedor" required style="padding: 8px 12px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px;">
-            <option value="">-- Selecciona un vendedor --</option>
-            {% for vendedor in vendedores %}
-            <option value="{{ vendedor }}" {% if vendedor == vendedor_filtro %}selected{% endif %}>{{ vendedor }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" style="padding: 8px 16px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Filtrar</button>
+    select option {
+        background: #1c2030;
+        color: #e8eaf2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:28px;">
+    <h1 style="margin-bottom:4px;">Filtro por Vendedor</h1>
+    <p style="color:var(--text-muted);font-size:13.5px;">Visualiza y exporta las ventas de cada vendedor</p>
+</div>
+
+<div class="card" style="max-width:500px;margin-bottom:28px;">
+    <h2 style="margin-top:0;margin-bottom:18px;">Seleccionar Vendedor</h2>
+    <form method="POST" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+            <label for="vendedor" style="display:block;margin-bottom:7px;font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Vendedor</label>
+            <select name="vendedor" id="vendedor" required
+                    style="width:100%;padding:9px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:'DM Sans',sans-serif;font-size:14px;transition:var(--transition);"
+                    onfocus="this.style.borderColor='var(--accent-blue)';this.style.boxShadow='0 0 0 3px var(--accent-blue-glow)';"
+                    onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none';">
+                <option value="">— Selecciona un vendedor —</option>
+                {% for vendedor in vendedores %}
+                <option value="{{ vendedor }}" {% if vendedor == vendedor_filtro %}selected{% endif %}>{{ vendedor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            Filtrar
+        </button>
     </form>
 </div>
 
 {% if vendedor_filtro %}
-<div style="background-color: #e7f3ff; border-left: 4px solid #0066cc; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
-    <strong>Vendedor seleccionado:</strong> {{ vendedor_filtro }}
-    <br>
-    <strong>Total de entregas:</strong> {{ ventas|length }}
-    {% set total_ventas = ventas|map(attribute=6)|sum %}
-    <strong style="margin-left: 20px;">Total vendido:</strong> ${{ "%.2f"|format(total_ventas) }}
-    <div style="margin-top: 10px;">
-        <a href="/descargar_excel_vendedor/{{ vendedor_filtro }}" class="btn btn-success" style="display: inline-block; padding: 8px 16px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
-            📥 Descargar Excel de {{ vendedor_filtro }}
-        </a>
+<div style="
+    background:var(--bg-surface);
+    border:1px solid var(--border);
+    border-left: 3px solid var(--accent-blue);
+    border-radius:var(--radius-md);
+    padding:18px 20px;
+    margin-bottom:28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:16px;
+">
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-blue-glow);border:1px solid rgba(77,124,255,0.25);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--accent-blue);flex-shrink:0;">
+            {{ vendedor_filtro[0] | upper }}
+        </div>
+        <div>
+            <p style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:3px;">{{ vendedor_filtro }}</p>
+            <p style="font-size:13px;color:var(--text-muted);">
+                <span style="color:var(--text-secondary);font-weight:500;">{{ ventas|length }}</span> entrega{% if ventas|length != 1 %}s{% endif %}
+                {% set total_ventas = ventas|map(attribute=6)|sum %}
+                &nbsp;·&nbsp; Total: <span style="color:var(--accent-emerald);font-weight:600;font-family:'DM Mono',monospace;">${{ "%.2f"|format(total_ventas) }}</span>
+            </p>
+        </div>
     </div>
+    <a href="/descargar_excel_vendedor/{{ vendedor_filtro }}" class="btn btn-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Exportar Excel
+    </a>
 </div>
 {% endif %}
 
@@ -37,264 +92,135 @@
 <h2>Entregas de {{ vendedor_filtro }}</h2>
 
 <div class="filtro-container">
-    <label for="filtroEntregas">🔍 Buscar:</label>
-    <input type="text" id="filtroEntregas" placeholder="Buscar por cliente, teléfono, número guía..." onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+    <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="search-input" type="text" id="filtroEntregas"
+               placeholder="Buscar por cliente, teléfono, número guía…"
+               onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+    </div>
 </div>
 
-<table id="tablaEntregas">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Número Guía</th>
-            <th>Ubicación</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Entregado</th>
-            <th>Agregar a Factura</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in ventas %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[7] }}</td>
-            <td>${{ "%.2f"|format(row[6]) }}</td>
-            <td>
-                {% if row[8] == 1 %}
-                    <span style="color: green; font-weight: bold;">✓ Sí</span>
-                {% else %}
-                    <span style="color: red;">✗ No</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if row[8] == 0 %}
-                <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
-                    <input type="number" name="monto" step="0.01" min="0" placeholder="Monto" required>
-                    <button type="submit">Agregar</button>
-                </form>
-                {% else %}
-                <span style="color: gray; font-style: italic;">No disponible</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if row[8] == 0 %}
-                <button onclick="marcarEntregado({{ row[0] }}, this)" style="background-color: #28a745; padding: 5px 10px; color: white; border: none; border-radius: 4px; cursor: pointer;">Marcar Entregado</button>
-                {% else %}
-                <span style="color: gray;">Entregado</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-wrap">
+    <table id="tablaEntregas">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Teléfono</th>
+                <th>N° Guía</th>
+                <th>Ubicación</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Factura</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in ventas %}
+            <tr>
+                <td><span class="mono">#{{ row[0] }}</span></td>
+                <td style="font-weight:500;">{{ row[1] }}</td>
+                <td><span class="mono">{{ row[2] }}</span></td>
+                <td><span class="mono">{{ row[3] }}</span></td>
+                <td style="color:var(--text-secondary);">{{ row[4] }}</td>
+                <td><span class="mono">{{ row[7] }}</span></td>
+                <td><span class="amount">${{ "%.2f"|format(row[6]) }}</span></td>
+                <td>
+                    {% if row[8] == 1 %}
+                        <span class="badge badge-success">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Entregado
+                        </span>
+                    {% else %}
+                        <span class="badge badge-danger">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            Pendiente
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row[8] == 0 %}
+                    <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
+                        <input type="number" name="monto" step="0.01" min="0" placeholder="0.00" required>
+                        <button type="submit">+ Agregar</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row[8] == 0 %}
+                    <button class="btn btn-success btn-sm" onclick="marcarEntregado({{ row[0] }}, this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Marcar
+                    </button>
+                    {% else %}
+                    <span class="text-muted">Entregado</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 {% elif vendedor_filtro and ventas|length == 0 %}
-<div style="background-color: #fff3cd; border-left: 4px solid #ff9800; padding: 15px; margin-top: 20px; border-radius: 4px;">
-    <strong>No hay entregas</strong> para el vendedor {{ vendedor_filtro }}
+<div class="sin-resultados-wrap">
+    <div class="sin-resultados-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
+        </svg>
+    </div>
+    <p style="color:var(--text-secondary);font-size:15px;font-weight:500;margin-bottom:6px;">Sin entregas</p>
+    <p style="color:var(--text-muted);font-size:13.5px;">No hay entregas registradas para <strong style="color:var(--text-secondary);">{{ vendedor_filtro }}</strong></p>
 </div>
 {% endif %}
 
-<!-- Botón para descargar todas las ventas (siempre visible) -->
-<div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd;">
-    <h3>Descargar Reportes</h3>
-    <a href="/descargar_excel_todos" class="btn btn-primary" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
-        📊 Descargar Excel - TODAS las Ventas
-    </a>
-    <a href="/descargar_excel_multitienda" class="btn btn-info" style="display: inline-block; padding: 10px 20px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
-        📑 Descargar Excel - Por Tiendas (Separado)
-    </a>
+<!-- Reportes globales -->
+<div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--border);">
+    <h2 style="margin-bottom:16px;">Descargar Reportes</h2>
+    <div class="flex gap-3 flex-wrap">
+        <a href="/descargar_excel_todos" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Todas las Ventas
+        </a>
+        <a href="/descargar_excel_multitienda" class="btn btn-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="6" height="6" rx="1"/><rect x="9" y="3" width="6" height="6" rx="1"/>
+                <rect x="16" y="3" width="6" height="6" rx="1"/>
+                <path d="M5 9v3m0 0v3m0-3h14"/><line x1="19" y1="9" x2="19" y2="15"/>
+            </svg>
+            Por Tiendas (Separado)
+        </a>
+    </div>
 </div>
 
 <script>
 function marcarEntregado(idEntrega, button) {
     mostrarModalConfirmacion(
         '¿Marcar como Entregado?',
-        '¿Estás seguro de que deseas marcar esta entrega como entregada?',
+        '¿Estás seguro de que deseas marcar esta entrega como entregada? Esta acción no se puede deshacer.',
         () => {
             fetch(`/marcar_entregado/${idEntrega}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             })
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
                 if (data.success) {
-                    const td = button.parentElement;
-                    td.innerHTML = '<span style="color: gray;">Entregado</span>';
-                    mostrarSnackbar('✓ Entrega marcada como entregada', 'success');
+                    button.closest('td').innerHTML = '<span class="text-muted">Entregado</span>';
+                    mostrarSnackbar('Entrega marcada como entregada', 'success');
                 }
             })
-            .catch(error => {
-                mostrarSnackbar('Error al marcar como entregado', 'error');
-            });
+            .catch(() => mostrarSnackbar('Error al marcar como entregado', 'error'));
         }
     );
 }
-
-function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
-    const modal = document.createElement('div');
-    modal.id = 'modalConfirmacion';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-    `;
-    
-    const contenedor = document.createElement('div');
-    contenedor.style.cssText = `
-        background-color: #2d2d2d;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-        padding: 32px;
-        max-width: 450px;
-        width: 90%;
-        animation: slideUp 0.3s ease-out;
-    `;
-    
-    const tituloEl = document.createElement('h2');
-    tituloEl.textContent = titulo;
-    tituloEl.style.cssText = 'margin: 0 0 16px 0; color: #ffffff; font-size: 22px; font-weight: 600;';
-    
-    const mensajeEl = document.createElement('p');
-    mensajeEl.textContent = mensaje;
-    mensajeEl.style.cssText = 'margin: 0 0 28px 0; color: #cccccc; font-size: 14px; line-height: 1.5;';
-    
-    const botonesDiv = document.createElement('div');
-    botonesDiv.style.cssText = 'display: flex; gap: 12px; justify-content: flex-end;';
-    
-    const botonCancelar = document.createElement('button');
-    botonCancelar.textContent = 'Cancelar';
-    botonCancelar.style.cssText = `
-        padding: 10px 24px;
-        background-color: transparent;
-        color: #ffffff;
-        border: 2px solid #555555;
-        border-radius: 24px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s;
-    `;
-    botonCancelar.onmouseover = () => {
-        botonCancelar.style.borderColor = '#777777';
-        botonCancelar.style.backgroundColor = 'rgba(119, 119, 119, 0.1)';
-    };
-    botonCancelar.onmouseout = () => {
-        botonCancelar.style.borderColor = '#555555';
-        botonCancelar.style.backgroundColor = 'transparent';
-    };
-    botonCancelar.onclick = () => modal.remove();
-    
-    const botonConfirmar = document.createElement('button');
-    botonConfirmar.textContent = 'Continuar';
-    botonConfirmar.style.cssText = `
-        padding: 10px 24px;
-        background-color: #4a9eff;
-        color: white;
-        border: 2px solid #4a9eff;
-        border-radius: 24px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s;
-    `;
-    botonConfirmar.onmouseover = () => {
-        botonConfirmar.style.backgroundColor = '#3a8ee5';
-        botonConfirmar.style.borderColor = '#3a8ee5';
-    };
-    botonConfirmar.onmouseout = () => {
-        botonConfirmar.style.backgroundColor = '#4a9eff';
-        botonConfirmar.style.borderColor = '#4a9eff';
-    };
-    botonConfirmar.onclick = () => {
-        modal.remove();
-        onConfirm();
-    };
-    
-    botonesDiv.appendChild(botonCancelar);
-    botonesDiv.appendChild(botonConfirmar);
-    
-    contenedor.appendChild(tituloEl);
-    contenedor.appendChild(mensajeEl);
-    contenedor.appendChild(botonesDiv);
-    modal.appendChild(contenedor);
-    document.body.appendChild(modal);
-}
-
-function mostrarSnackbar(mensaje, tipo = 'info') {
-    const snackbar = document.createElement('div');
-    snackbar.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: ${tipo === 'success' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        padding: 16px 24px;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1500;
-        font-size: 14px;
-        animation: slideInUp 0.3s ease-out;
-        max-width: 400px;
-    `;
-    snackbar.textContent = mensaje;
-    document.body.appendChild(snackbar);
-    
-    setTimeout(() => {
-        snackbar.style.animation = 'slideOutDown 0.3s ease-in';
-        setTimeout(() => snackbar.remove(), 300);
-    }, 3000);
-}
 </script>
-
-<style>
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutDown {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-}
-</style>
-
 {% endblock %}

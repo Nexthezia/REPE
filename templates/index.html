@@ -1,288 +1,107 @@
 {% extends "base.html" %}
 
-{% block title %}Entregas - Vista General{% endblock %}
+{% block title %}Entregas — Vista General{% endblock %}
 
 {% block content %}
-<h1>Todas las Entregas</h1>
-
-<div style="background-color: #f0f0f0; padding: 15px; margin-bottom: 20px; border-radius: 4px; display: flex; gap: 15px; flex-wrap: wrap;">
-    <a href="/filtro_vendedor" class="btn btn-info" style="display: inline-block; padding: 10px 20px; background-color: #17a2b8; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
-        🔍 Filtro por Vendedor
-    </a>
-    <a href="/descargar_excel_todos" class="btn btn-success" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;">
-        📥 Descargar Excel - Todas las Ventas
-    </a>
+<div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px;">
+    <div>
+        <h1 style="margin-bottom:4px;">Todas las Entregas</h1>
+        <p style="color:var(--text-muted);font-size:13.5px;">Vista general de todas las entregas registradas</p>
+    </div>
+    <div class="flex gap-3 flex-wrap">
+        <a href="/filtro_vendedor" class="btn btn-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
+            </svg>
+            Filtro por Vendedor
+        </a>
+        <a href="/descargar_excel_todos" class="btn btn-success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Exportar Excel
+        </a>
+    </div>
 </div>
 
 <h2>Detalle de Entregas</h2>
 <div class="filtro-container">
-    <label for="filtroEntregas">🔍 Buscar:</label>
-    <input type="text" id="filtroEntregas" placeholder="Buscar por cliente, teléfono, número guía, encargado..." onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+    <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="search-input" type="text" id="filtroEntregas"
+               placeholder="Buscar por cliente, teléfono, número guía, encargado…"
+               onkeyup="filtrarTabla('tablaEntregas', 'filtroEntregas')">
+    </div>
 </div>
-<table id="tablaEntregas">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Número Guía</th>
-            <th>Ubicación</th>
-            <th>Encargado</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Entregado</th>
-            <th>Agregar a Factura</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in ventas_vendedores %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>{{ row[2] }}</td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>{{ row[7] }}</td>
-            <td>${{ "%.2f"|format(row[6]) }}</td>
-            <td>
-                {% if row[8] == 1 %}
-                    <span style="color: green; font-weight: bold;">✓ Sí</span>
-                {% else %}
-                    <span style="color: red;">✗ No</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if row[8] == 0 %}
-                <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
-                    <input type="number" name="monto" step="0.01" min="0" placeholder="Monto" required>
-                    <button type="submit">Agregar</button>
-                </form>
-                {% else %}
-                <span style="color: gray; font-style: italic;">No disponible</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if row[8] == 0 %}
-                <button onclick="marcarEntregado({{ row[0] }}, this)" style="background-color: #28a745; padding: 5px 10px; color: white; border: none; border-radius: 4px; cursor: pointer;">Marcar Entregado</button>
-                {% else %}
-                <span style="color: gray;">Entregado</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
 
-<h2>Resumen de Ventas por Vendedor</h2>
-<div class="filtro-container">
-    <label for="filtroVendedores">🔍 Buscar:</label>
-    <input type="text" id="filtroVendedores" placeholder="Buscar por nombre del vendedor..." onkeyup="filtrarTabla('tablaVendedores', 'filtroVendedores')">
+<div class="table-wrap">
+    <table id="tablaEntregas">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Teléfono</th>
+                <th>N° Guía</th>
+                <th>Ubicación</th>
+                <th>Encargado</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Factura</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in ventas_vendedores %}
+            <tr>
+                <td><span class="mono">#{{ row[0] }}</span></td>
+                <td style="font-weight:500;">{{ row[1] }}</td>
+                <td><span class="mono">{{ row[2] }}</span></td>
+                <td><span class="mono">{{ row[3] }}</span></td>
+                <td style="color:var(--text-secondary);">{{ row[4] }}</td>
+                <td style="color:var(--text-secondary);">{{ row[5] }}</td>
+                <td><span class="mono">{{ row[7] }}</span></td>
+                <td><span class="amount">${{ "%.2f"|format(row[6]) }}</span></td>
+                <td>
+                    {% if row[8] == 1 %}
+                        <span class="badge badge-success">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Entregado
+                        </span>
+                    {% else %}
+                        <span class="badge badge-danger">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            Pendiente
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row[8] == 0 %}
+                    <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
+                        <input type="number" name="monto" step="0.01" min="0" placeholder="0.00" required>
+                        <button type="submit">+ Agregar</button>
+                    </form>
+                    {% else %}
+                    <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if row[8] == 0 %}
+                    <button class="btn btn-success btn-sm" onclick="marcarEntregado({{ row[0] }}, this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Marcar
+                    </button>
+                    {% else %}
+                    <span class="text-muted">Entregado</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-<table id="tablaVendedores">
-    <thead>
-        <tr>
-            <th>Vendedor</th>
-            <th>Cantidad de Entregas</th>
-            <th>Total Vendido</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in totales_vendedores %}
-        <tr class="total-row">
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>${{ "%.2f"|format(row[2]) }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<script>
-function marcarEntregado(idEntrega, button) {
-    mostrarModalConfirmacion(
-        '¿Marcar como Entregado?',
-        '¿Estás seguro de que deseas marcar esta entrega como entregada?',
-        () => {
-            fetch(`/marcar_entregado/${idEntrega}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const td = button.parentElement;
-                    td.innerHTML = '<span style="color: gray;">Entregado</span>';
-                    mostrarSnackbar('✓ Entrega marcada como entregada', 'success');
-                }
-            })
-            .catch(error => {
-                mostrarSnackbar('Error al marcar como entregado', 'error');
-            });
-        }
-    );
-}
-
-function mostrarModalConfirmacion(titulo, mensaje, onConfirm) {
-    const modal = document.createElement('div');
-    modal.id = 'modalConfirmacion';
-    modal.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2000;
-    `;
-    
-    const contenedor = document.createElement('div');
-    contenedor.style.cssText = `
-        background-color: #2d2d2d;
-        border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-        padding: 32px;
-        max-width: 450px;
-        width: 90%;
-        animation: slideUp 0.3s ease-out;
-    `;
-    
-    const tituloEl = document.createElement('h2');
-    tituloEl.textContent = titulo;
-    tituloEl.style.cssText = 'margin: 0 0 16px 0; color: #ffffff; font-size: 22px; font-weight: 600;';
-    
-    const mensajeEl = document.createElement('p');
-    mensajeEl.textContent = mensaje;
-    mensajeEl.style.cssText = 'margin: 0 0 28px 0; color: #cccccc; font-size: 14px; line-height: 1.5;';
-    
-    const botonesDiv = document.createElement('div');
-    botonesDiv.style.cssText = 'display: flex; gap: 12px; justify-content: flex-end;';
-    
-    const botonCancelar = document.createElement('button');
-    botonCancelar.textContent = 'Cancelar';
-    botonCancelar.style.cssText = `
-        padding: 10px 24px;
-        background-color: transparent;
-        color: #ffffff;
-        border: 2px solid #555555;
-        border-radius: 24px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s;
-    `;
-    botonCancelar.onmouseover = () => {
-        botonCancelar.style.borderColor = '#777777';
-        botonCancelar.style.backgroundColor = 'rgba(119, 119, 119, 0.1)';
-    };
-    botonCancelar.onmouseout = () => {
-        botonCancelar.style.borderColor = '#555555';
-        botonCancelar.style.backgroundColor = 'transparent';
-    };
-    botonCancelar.onclick = () => modal.remove();
-    
-    const botonConfirmar = document.createElement('button');
-    botonConfirmar.textContent = 'Continuar';
-    botonConfirmar.style.cssText = `
-        padding: 10px 24px;
-        background-color: #4a9eff;
-        color: white;
-        border: 2px solid #4a9eff;
-        border-radius: 24px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s;
-    `;
-    botonConfirmar.onmouseover = () => {
-        botonConfirmar.style.backgroundColor = '#3a8ee5';
-        botonConfirmar.style.borderColor = '#3a8ee5';
-    };
-    botonConfirmar.onmouseout = () => {
-        botonConfirmar.style.backgroundColor = '#4a9eff';
-        botonConfirmar.style.borderColor = '#4a9eff';
-    };
-    botonConfirmar.onclick = () => {
-        modal.remove();
-        onConfirm();
-    };
-    
-    botonesDiv.appendChild(botonCancelar);
-    botonesDiv.appendChild(botonConfirmar);
-    
-    contenedor.appendChild(tituloEl);
-    contenedor.appendChild(mensajeEl);
-    contenedor.appendChild(botonesDiv);
-    modal.appendChild(contenedor);
-    document.body.appendChild(modal);
-}
-
-function mostrarSnackbar(mensaje, tipo = 'info') {
-    const snackbar = document.createElement('div');
-    snackbar.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: ${tipo === 'success' ? '#28a745' : tipo === 'error' ? '#dc3545' : '#17a2b8'};
-        color: white;
-        padding: 16px 24px;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1500;
-        font-size: 14px;
-        animation: slideInUp 0.3s ease-out;
-        max-width: 400px;
-    `;
-    snackbar.textContent = mensaje;
-    document.body.appendChild(snackbar);
-    
-    setTimeout(() => {
-        snackbar.style.animation = 'slideOutDown 0.3s ease-in';
-        setTimeout(() => snackbar.remove(), 300);
-    }, 3000);
-}
-</script>
-
-<style>
-@keyframes slideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutDown {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateY(100%);
-        opacity: 0;
-    }
-}
-</style>
 
 {% endblock %}

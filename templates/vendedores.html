@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Vendedores{% endblock %}
+
+{% block content %}
+
+<h2>Resumen por Vendedor</h2>
+<div class="filtro-container">
+    <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input class="search-input" type="text" id="filtroVendedores"
+               placeholder="Buscar vendedor…"
+               onkeyup="filtrarTabla('tablaVendedores', 'filtroVendedores')">
+    </div>
+</div>
+
+<div class="table-wrap">
+    <table id="tablaVendedores">
+        <thead>
+            <tr>
+                <th>Vendedor</th>
+                <th>Entregas</th>
+                <th>Total Vendido</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in totales_vendedores %}
+            <tr class="total-row">
+                <td style="font-weight:500;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:30px;height:30px;border-radius:8px;background:var(--accent-blue-glow);border:1px solid rgba(77,124,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent-blue);">
+                            {{ row[0][0] | upper }}
+                        </div>
+                        {{ row[0] }}
+                    </div>
+                </td>
+                <td>
+                    <span style="display:inline-flex;align-items:center;gap:6px;background:var(--bg-elevated);padding:3px 10px;border-radius:20px;font-size:12.5px;font-weight:600;color:var(--text-secondary);">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Z"/></svg>
+                        {{ row[1] }}
+                    </span>
+                </td>
+                <td><span class="amount" style="color:var(--accent-emerald);">${{ "%.2f"|format(row[2]) }}</span></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function marcarEntregado(idEntrega, button) {
+    mostrarModalConfirmacion(
+        '¿Marcar como Entregado?',
+        '¿Estás seguro de que deseas marcar esta entrega como entregada? Esta acción no se puede deshacer.',
+        () => {
+            fetch(`/marcar_entregado/${idEntrega}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    button.closest('td').innerHTML = '<span class="text-muted">Entregado</span>';
+                    mostrarSnackbar('Entrega marcada como entregada', 'success');
+                }
+            })
+            .catch(() => mostrarSnackbar('Error al marcar como entregado', 'error'));
+        }
+    );
+}
+</script>
+
+{% endblock %}

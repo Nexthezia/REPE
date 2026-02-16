@@ -51,6 +51,7 @@ def agregar_a_factura(id_entrega, monto_adicional):
         cursor.execute(query_check, (id_entrega,))
         resultado = cursor.fetchone()
         
+        # Restricción: No permitir editar facturas de pedidos entregados
         if resultado and resultado[0] == 1:
             print(f"No se puede agregar a factura. El pedido {id_entrega} ya fue entregado.")
             return False
@@ -138,7 +139,7 @@ def marcar_como_entregado(id_entrega):
         cursor = conexion.cursor()
         query = """
             UPDATE entregas 
-            SET entregado = 1 
+            SET entregado = IF(entregado = 1, 0, 1)
             WHERE id = %s
         """
         cursor.execute(query, (id_entrega,))

@@ -53,8 +53,10 @@ def agregar_monto_factura(id_entrega):
             pass
 
     if referrer:
-        return redirect(referrer)
-    return redirect(url_for('index'))
+        if '#' in referrer:
+            referrer = referrer.split('#')[0]
+        return redirect(f"{referrer}#{id_entrega}")
+    return redirect(url_for('index', _anchor=str(id_entrega)))
 
 @app.route('/marcar_entregado/<int:id_entrega>', methods=['POST'])
 def marcar_entregado(id_entrega):
@@ -67,8 +69,10 @@ def marcar_entregado(id_entrega):
     # Si viene del formulario tradicional, redirigir al referrer
     referrer = request.referrer
     if referrer:
-        return redirect(referrer)
-    return redirect(url_for('index'))
+        if '#' in referrer:
+            referrer = referrer.split('#')[0]
+        return redirect(f"{referrer}#{id_entrega}")
+    return redirect(url_for('index', _anchor=str(id_entrega)))
 
 @app.route('/entregas_por_fecha', methods=['GET', 'POST'])
 def entregas_por_fecha():
@@ -164,4 +168,4 @@ def descargar_excel_multitienda():
     )
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

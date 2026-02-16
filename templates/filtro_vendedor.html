@@ -19,6 +19,47 @@
         color: #e8eaf2;
     }
 </style>
+<style>
+    @media (max-width: 768px) {
+        /* Ajustes generales */
+        .card { max-width: 100% !important; }
+        .btn { width: 100%; justify-content: center; }
+        .flex.gap-3 { flex-direction: column; }
+
+        /* Tabla a Tarjetas */
+        #tablaEntregas thead { display: none; }
+        #tablaEntregas tbody tr {
+            display: block;
+            margin-bottom: 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #tablaEntregas tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+        }
+        #tablaEntregas tbody td:last-child { border-bottom: none; padding-bottom: 0; justify-content: center; margin-top: 8px; }
+        
+        #tablaEntregas tbody td::before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: left;
+            margin-right: 16px;
+            font-size: 13px;
+        }
+        
+        .agregar-form { display: flex; gap: 5px; justify-content: flex-end; width: 100%; }
+        .agregar-form input { width: 80px !important; }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -121,14 +162,14 @@
         <tbody>
             {% for row in ventas %}
             <tr>
-                <td><span class="mono">#{{ row[0] }}</span></td>
-                <td style="font-weight:500;">{{ row[1] }}</td>
-                <td><span class="mono">{{ row[2] }}</span></td>
-                <td><span class="mono">{{ row[3] }}</span></td>
-                <td style="color:var(--text-secondary);">{{ row[4] }}</td>
-                <td><span class="mono">{{ row[7] }}</span></td>
-                <td><span class="amount">${{ "%.2f"|format(row[6]) }}</span></td>
-                <td>
+                <td data-label="ID"><span class="mono">#{{ row[0] }}</span></td>
+                <td data-label="Cliente" style="font-weight:500;">{{ row[1] }}</td>
+                <td data-label="Teléfono"><span class="mono">{{ row[2] }}</span></td>
+                <td data-label="N° Guía"><span class="mono">{{ row[3] }}</span></td>
+                <td data-label="Ubicación" style="color:var(--text-secondary);">{{ row[4] }}</td>
+                <td data-label="Fecha"><span class="mono">{{ row[7] }}</span></td>
+                <td data-label="Total"><span class="amount">${{ "%.2f"|format(row[6]) }}</span></td>
+                <td data-label="Estado">
                     {% if row[8] == 1 %}
                         <span class="badge badge-success">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -141,7 +182,7 @@
                         </span>
                     {% endif %}
                 </td>
-                <td>
+                <td data-label="Factura">
                     {% if row[8] == 0 %}
                     <form action="/agregar_a_factura/{{ row[0] }}" method="POST" class="agregar-form">
                         <input type="number" name="monto" step="0.01" min="0" placeholder="0.00" required>
@@ -151,7 +192,7 @@
                     <span class="text-muted">N/A</span>
                     {% endif %}
                 </td>
-                <td>
+                <td data-label="Acción">
                     {% if row[8] == 0 %}
                     <button class="btn btn-success btn-sm" onclick="marcarEntregado({{ row[0] }}, this)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -202,6 +243,24 @@
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Mantener filtro al recargar (agregar dinero/marcar entregado)
+    var inputFiltro = document.getElementById("filtroEntregas");
+    if (inputFiltro) {
+        var valorGuardado = localStorage.getItem("filtro_vendedor_detalle");
+        if (valorGuardado) {
+            inputFiltro.value = valorGuardado;
+            if (typeof filtrarTabla === "function") {
+                filtrarTabla('tablaEntregas', 'filtroEntregas');
+            }
+        }
+        
+        inputFiltro.addEventListener("input", function() {
+            localStorage.setItem("filtro_vendedor_detalle", this.value);
+        });
+    }
+});
+
 function marcarEntregado(idEntrega, button) {
     mostrarModalConfirmacion(
         '¿Marcar como Entregado?',
@@ -214,6 +273,18 @@ function marcarEntregado(idEntrega, button) {
             .then(r => r.json())
             .then(data => {
                 if (data.success) {
+                    const row = button.closest('tr');
+                    
+                    // Actualizar columna Estado (Índice 7)
+                    row.cells[7].innerHTML = `
+                        <span class="badge badge-success">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Entregado
+                        </span>`;
+                    
+                    // Actualizar columna Factura (Índice 8)
+                    row.cells[8].innerHTML = '<span class="text-muted">N/A</span>';
+                    
                     button.closest('td').innerHTML = '<span class="text-muted">Entregado</span>';
                     mostrarSnackbar('Entrega marcada como entregada', 'success');
                 }

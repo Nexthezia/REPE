@@ -1,0 +1,49 @@
+# ========================================
+# REPE - Sistema de Gestión de Entregas
+# Dependencias del Proyecto
+# ========================================
+
+# Framework Web
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Base de Datos
+mysql-connector-python==8.2.0
+SQLAlchemy==2.0.23
+
+# WebSocket (Comunicación en Tiempo Real)
+Flask-SocketIO==5.3.5
+python-socketio==5.10.0
+python-engineio==4.8.0
+
+# Autenticación y Seguridad
+Flask-Login==0.6.3
+Flask-JWT-Extended==4.5.3
+PyJWT==2.12.1
+bcrypt==4.1.1
+
+# Manejo de Excel
+openpyxl==3.1.2
+xlsxwriter==3.1.9
+
+# Utilidades
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+
+# CORS (Compartir recuros entre dominios)
+Flask-CORS==4.0.0
+
+# Validación de Datos
+marshmallow==3.20.1
+
+# Servidor WSGI (Producción)
+gunicorn==21.2.0
+
+# Monitoreo y Logging
+python-json-logger==2.0.7
+
+# Desarrollo (Opcional)
+pytest==7.4.3
+pytest-flask==1.3.0
+black==23.12.1
+flake8==6.1.0
